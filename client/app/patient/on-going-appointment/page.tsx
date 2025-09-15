@@ -4,10 +4,18 @@ import { Calendar, Clock } from "lucide-react";
 import { axiosFetchPatient } from "@/lib/axiosConfig";
 import Link from "next/link";
 
+interface Appointment {
+  _id: string;
+  appointedDoctorId?: string;
+  problem: string;
+  time: string;
+  progress: string;
+}
+
 export default function OngoingAppointmentsPage() {
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -16,21 +24,19 @@ export default function OngoingAppointmentsPage() {
   const fetchAppointments = async () => {
     try {
       const token = localStorage.getItem("token");
-      axiosFetchPatient(token)
-        .get("/get-patient-appointments")
-        .then((response) => {
-          console.log(response.data);
-          const data = response.data;
-          setAppointments(data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          setError(error.message);
-          setLoading(false);
-          console.log(error);
-        });
-    } catch (err) {
-      setError(err.message);
+      if (!token) throw new Error("Token not found");
+
+      const response = await axiosFetchPatient(token).get(
+        "/get-patient-appointments"
+      );
+      setAppointments(response.data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong.");
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -76,24 +82,20 @@ export default function OngoingAppointmentsPage() {
               <div className="flex items-center mb-4 text-gray-500 space-x-4">
                 <div className="flex items-center">
                   <Calendar className="mr-2 h-5 w-5 text-gray-400" />
-                  <span>
-                    {new Date(appointment.time).toLocaleDateString()}
-                  </span>
+                  <span>{new Date(appointment.time).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center">
                   <Clock className="mr-2 h-5 w-5 text-gray-400" />
-                  <span>
-                    {new Date(appointment.time).toLocaleTimeString()}
-                  </span>
+                  <span>{new Date(appointment.time).toLocaleTimeString()}</span>
                 </div>
               </div>
               <div className="flex items-center justify-between mt-4">
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold inline-block bg-${
-                    appointment.progress === "ongoing" ? "green" : "yellow"
-                  }-100 text-${
-                    appointment.progress === "ongoing" ? "green" : "yellow"
-                  }-700`}
+                  className={`px-3 py-1 rounded-full text-sm font-semibold inline-block ${
+                    appointment.progress === "ongoing"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
                 >
                   {appointment.progress}
                 </span>

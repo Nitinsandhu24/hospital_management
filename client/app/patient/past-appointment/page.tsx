@@ -1,12 +1,23 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock } from 'lucide-react';
-import { axiosFetchPatient } from '@/lib/axiosConfig';
+import React, { useState, useEffect } from "react";
+import { Calendar, Clock } from "lucide-react";
+import { axiosFetchPatient } from "@/lib/axiosConfig";
+
+// TypeScript interface for appointment object
+interface Appointment {
+  _id: string;
+  appointedDoctorId?: {
+    name: string;
+  };
+  problem: string;
+  time: string;
+  progress: string;
+}
 
 export default function PastAppointmentsPage() {
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAppointments();
@@ -14,37 +25,54 @@ export default function PastAppointmentsPage() {
 
   const fetchAppointments = async () => {
     try {
-      const token:any = localStorage.getItem('token');
-      const response = await axiosFetchPatient(token).get('/past-appointments'); 
-      console.log(response.data);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("Token not found");
+
+      const response = await axiosFetchPatient(token).get("/past-appointments");
       setAppointments(response.data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong.");
+      }
+    } finally {
       setLoading(false);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      console.log(err);
     }
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-600 text-lg">Loading...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500 text-lg">{error}</p>
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Past Appointments</h1>
+      <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">
+        Past Appointments
+      </h1>
       {appointments.length === 0 ? (
-        <p className="text-gray-600">No past appointments found.</p>
+        <p className="text-gray-600 text-center">No past appointments found.</p>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {appointments.map((appointment) => (
-            <div key={appointment._id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300">
+            <div
+              key={appointment._id}
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-300"
+            >
               <h2 className="text-xl font-semibold mb-3 text-gray-800">
-                Doctor: {appointment.appointedDoctorId?.name || 'Not Assigned'}
+                Doctor: {appointment.appointedDoctorId?.name || "Not Assigned"}
               </h2>
               <p className="text-gray-800 mb-3">{appointment.problem}</p>
               <div className="flex items-center mb-2 text-gray-600">

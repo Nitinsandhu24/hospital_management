@@ -10,14 +10,11 @@ const Wrapper = ({ children }: any) => {
   useEffect(() => {
     const token = localStorage.getItem("token") || "";
     if (token) {
-      // check token is correct or not // and its redi
       axiosFetchType(token)
         .get("/get-token-type")
         .then((data) => {
           if (data.status === 200) {
             setLoading(false);
-            
-              // redirection according to token type (doctor , patient)  
               if (path !=="/")  return          
               if (data.data.type === "patient") {
                 router.push("/patient/profile");

@@ -18,13 +18,15 @@ const UserProfile = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const token: any = localStorage.getItem("token");
-        axiosFetchPatient(token)
-          .get("/user-profile")
-          .then((response) => {
-            setUser(response.data.user);
-            setLoading(false);
-          });
+        const token = localStorage.getItem("token");
+        if (!token) {
+          setError("No auth token found.");
+          setLoading(false);
+          return;
+        }
+        const response = await axiosFetchPatient(token).get("/user-profile");
+        setUser(response.data.user);
+        setLoading(false);
       } catch (err) {
         console.error("Error fetching user profile:", err);
         setError("Failed to load user profile.");

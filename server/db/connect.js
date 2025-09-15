@@ -3,7 +3,6 @@ const { AppointmentSchema } = require("../model/appointmentModel");
 
 const connect = async (url) => {
   try {
-    
     await mongoose.connect(url, {
       autoIndex: true, 
     });   

@@ -130,8 +130,7 @@ const PatientLogin = () => {
       </div>
       <button
         type="submit"
-        className="w-full bg ```javascript
--indigo-700 text-white py-2 rounded-md hover:bg-indigo-800 transition duration-300"
+        className="w-full bg-indigo-700 text-white py-2 rounded-md hover:bg-indigo-800 transition duration-300"
       >
         Login
       </button>
@@ -296,9 +295,9 @@ const DoctorSignup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosFetch.post("/doctor-auth/signup", {
+      const response = await axiosFetch.post("/doctor-auth/signup", 
         formData,
-      });
+      );
       if (response.data.success) {
         const token = response.data.data.token;
         localStorage.setItem("token", token);
@@ -430,9 +429,9 @@ const DoctorSignin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axiosFetch.post("/doctor-auth/login", {
+      const response = await axiosFetch.post("/doctor-auth/login", 
         formData,
-      });
+      );
       if (response.data.success) {
         const token = response.data.data.token;
         localStorage.setItem("token", token);

@@ -89,10 +89,28 @@ const getuserprofile = async (req, res) => {
     console.log(err);
   }
 };
+// In your controller (doctorController.js or appointmentController.js)
+
+const markAppointmentAsDone = async (req, res) => {
+  try {
+    const { appointmentId } = req.body;
+    const appointment = await AppointmentSchema.findById(appointmentId);
+    if (!appointment) return res.status(404).send("Appointment not found");
+
+    appointment.progress = "done";
+    await appointment.save();
+    res.status(200).json({ message: "Appointment marked as done" });
+  } catch (error) {
+    console.error("Error in markAppointmentAsDone:", error);
+    res.status(500).send("Error marking appointment as done");
+  }
+};
+
 module.exports = {
   getAllAppointments,
   addPresentDoctor,
   getDoctorAppointments,
   getuserprofile,
   updateAppointmentProgress,
+  markAppointmentAsDone,
 };

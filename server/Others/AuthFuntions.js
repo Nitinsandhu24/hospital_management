@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
+const { log } = require("console");
 const saltRounds = parseInt(process.env.SALTROUNDS, 10) || 10;
 const jwtSecret = "secret";
 const transporter = nodemailer.createTransport({
@@ -26,6 +27,7 @@ const hashPassword = async (password) => {
 };
 const comparePassword = async (password, hashedPassword) => {
   try {
+    console.log("Password before hash ", password);
     const match = await bcrypt.compare(password, hashedPassword);
     return match;
   } catch (err) {
@@ -35,19 +37,15 @@ const comparePassword = async (password, hashedPassword) => {
 };
 const createJwt = (id, type) => {
   // id and type = doctor or patient
-  const token = jwt.sign(
-    { _id: id, type: type },
-    jwtSecret
-    //    {
-    //   expiresIn: "24h",
-    // }
-  );
+  const token = jwt.sign({ _id: id, type: type }, jwtSecret, {
+    expiresIn: "24h",
+  });
   return token;
 };
 const sendVerificationEmail = (mailOptionsObject) => {
   const mailOptions = {
     ...mailOptionsObject,
-    from: "anshikthind@gmail.com",
+    from: "nitinsandhu157@gmail.com",
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
